@@ -74,6 +74,7 @@ public class Model {
     public int K = 100;        // number of topics
     public double alpha;       // LDA hyperparameters
     public double beta = 0.01; // LDA hyperparameters
+    public boolean alpha_changed = false; //Whether alpha is changed during the construction when option alpha is negative
     public int niters = 1000;  // number of Gibbs sampling iteration
     public int nburnin = 500;  // number of Gibbs sampling burn-in iterations
     public int samplingLag = 5;// Gibbs sampling sample lag
@@ -113,8 +114,10 @@ public class Model {
         K = option.K;
 
         alpha = option.alpha;
-        if (alpha < 0.0)
-            alpha = 50.0 / K;
+	if (alpha < 0.0){
+	    alpha = 50.0/K;
+	    alpha_changed = true;
+        }
 
         if (option.beta >= 0)
             beta = option.beta;
@@ -162,6 +165,10 @@ public class Model {
         if (random) {
             M = data.M;
             V = data.V;
+            K = data.K;
+            if (alpha_changed){
+              alpha = 50.0 / K;
+	    }
             z = new TIntArrayList[M];
         } else {
             if (!loadModel()) {
@@ -169,14 +176,16 @@ public class Model {
                 return false;
             }
 
-            // debug output
-            System.out.println("Model loaded:");
-            System.out.println("\talpha:" + alpha);
-            System.out.println("\tbeta:" + beta);
-            System.out.println("\tK:" + K);
-            System.out.println("\tM:" + M);
-            System.out.println("\tV:" + V);
         }
+
+        // debug output
+        System.out.println("Model Statistics:");
+        System.out.println("\talpha:" + alpha);
+        System.out.println("\tbeta:" + beta);
+        System.out.println("\tK:" + K);
+        System.out.println("\tM:" + M);
+        System.out.println("\tV:" + V);
+
 
         p = new double[K];
 
