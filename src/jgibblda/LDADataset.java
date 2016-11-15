@@ -48,6 +48,9 @@ public class LDADataset {
     public ArrayList<Document> docs = new ArrayList<Document>(); 		// a list of documents	
     public int M = 0; 			 		// number of documents
     public int V = 0;			 		// number of words
+    public int K = 0;                                   // number of topics
+    private TIntHashSet topic_set = new TIntHashSet();
+
 
     // map from local coordinates (id) to global ones 
     // null if the global dictionary is not set
@@ -63,6 +66,12 @@ public class LDADataset {
     {
         this.M = M;
     }
+    
+    public void setK(int K)
+    {
+        this.K = K;
+    }
+
 
     public void setDictionary(Dictionary globalDict)
     {
@@ -105,6 +114,7 @@ public class LDADataset {
                 for (String labelStr : labelStrs) {
                     try {
                         label_set.add(Integer.parseInt(labelStr.trim()));
+                        topic_set.add(Integer.parseInt(labelStr.trim()));
                     } catch (NumberFormatException nfe) {
                         System.err.println("Unknown document label ( " + labelStr + " ) for document " + docs.size() + ".");
                     }
@@ -165,11 +175,12 @@ public class LDADataset {
                 addDoc(line, unlabeled);
             }
             setM(docs.size());
-
+            setK(topic_set.size());
             // debug output
             System.out.println("Dataset loaded:");
             System.out.println("\tM:" + M);
             System.out.println("\tV:" + V);
+            System.out.println("\tK:" + K);
 
             return true;
         } finally {
